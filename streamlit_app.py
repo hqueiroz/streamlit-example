@@ -5,13 +5,22 @@ from google.oauth2 import service_account
 from google.cloud import bigquery
 
 
-# Caminho para o arquivo JSON de chave privada
-key_path = '/app/credentials.json'
+# # Caminho para o arquivo JSON de chave privada
+# key_path = '/app/credentials.json'
 
-# Autenticação usando a conta de serviço
-credentials = service_account.Credentials.from_service_account_file(key_path)
+# # Autenticação usando a conta de serviço
+# credentials = service_account.Credentials.from_service_account_file(key_path)
 
 # Nome do projeto do Google Cloud
+
+
+# Create API client.
+credentials = service_account.Credentials.from_service_account_info(
+    st.secrets["gcp_service_account"]
+)
+client = bigquery.Client(credentials=credentials)
+
+
 project_id = 'cities-rurax'
 
 def load_data():
