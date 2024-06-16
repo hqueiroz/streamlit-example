@@ -1,40 +1,35 @@
-import altair as alt
-import numpy as np
 import pandas as pd
 import streamlit as st
+#import google.auth
+from google.oauth2 import service_account
+from google.cloud import bigquery
 
-"""
-# Welcome to Streamlit!
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:.
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+# Caminho para o arquivo JSON de chave privada
+key_path = '/app/credentials.json'
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+# Autenticação usando a conta de serviço
+credentials = service_account.Credentials.from_service_account_file(key_path)
 
-num_points = st.slider("Number of points in spiral", 1, 10000, 1100)
-num_turns = st.slider("Number of turns in spiral", 1, 300, 31)
+# Nome do projeto do Google Cloud
+project_id = 'cities-rurax'
 
-indices = np.linspace(0, 1, num_points)
-theta = 2 * np.pi * num_turns * indices
-radius = indices
+def load_data():
+    query = """
+    SELECT 
+    *
+    FROM 
+    `cities-rurax.insight_esalq.tb_precos_boi` 
+    LIMIT 10
+    """
+    df = pd.read_gbq(query, dialect="standard", project_id=project_id, credentials=credentials)
+    return df
 
-x = radius * np.cos(theta)
-y = radius * np.sin(theta)
+# Carregar os dados
+data = load_data()
 
-df = pd.DataFrame({
-    "x": x,
-    "y": y,
-    "idx": indices,
-    "rand": np.random.randn(num_points),
-})
+# Título da aplicação
+st.title("Tabela de Dados do BigQuery")
 
-st.altair_chart(alt.Chart(df, height=700, width=700)
-    .mark_point(filled=True)
-    .encode(
-        x=alt.X("x", axis=None),
-        y=alt.Y("y", axis=None),
-        color=alt.Color("idx", legend=None, scale=alt.Scale()),
-        size=alt.Size("rand", legend=None, scale=alt.Scale(range=[1, 150])),
-    ))
+# Exibir o DataFrame no Streamlit
+st.write(data)
