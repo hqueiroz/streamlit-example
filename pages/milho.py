@@ -19,10 +19,11 @@ client = bigquery.Client(credentials=credentials)
 project_id = 'cities-rurax'
 
 # Título da aplicação
-st.title(":green[>> BOI GORDO (BGI)]")
+st.title(":green[>> MILHO]")
 
 #Imagem Topo
-st.image('https://i.imgur.com/4EPJ2wx.jpg',use_column_width='always')
+st.image('https://i.imgur.com/02wX7AE.png',use_column_width='always')
+
 
 with st.sidebar:
 
@@ -44,7 +45,7 @@ with st.sidebar:
     data_final = st.date_input("DATA FINAL",value="default_value_today",min_value=datetime.date(2024,1,1),format="DD/MM/YYYY")
 
     #st.write(":green[>> BOI GORDO]")
-    st.page_link("streamlit_app.py", label=">> BOI GORDO", disabled=True)
+    st.page_link("streamlit_app.py", label=">> BOI GORDO")
     st.image("https://i.imgur.com/edshqj2.png",width=75)
 
     #st.write(":green[>> SOJA]")
@@ -52,8 +53,9 @@ with st.sidebar:
     st.image("https://i.imgur.com/ck4EKWb.png",width=75)
 
     #st.write(":green[>> MILHO]")
-    st.page_link("pages/milho.py", label=">> MILHO")
+    st.page_link("pages/milho.py", label=">> MILHO", disabled=True)
     st.image("https://i.imgur.com/QPNz06I.png",width=75)
+
 
 @st.cache_data
 def load_data():
@@ -61,13 +63,13 @@ def load_data():
     select 
         cast(dt_preco as date format 'dd/mm/yyyy') data_preco, 
         ds_produto, 
-        vl_preco, 
-        'INDICADOR DO BOI GORDO CEPEA/B3' as ds_serie 
-        from `insight_esalq.tb_precos_boi` 
+        vl_preco_a_vista_br as vl_preco, 
+        'INDICADOR DO MILHO ESALQ/BM&FBOVESPA' as ds_serie 
+        from `insight_esalq.tb_precos_milho` 
     where 
         cast(dt_preco as date format 'dd/mm/yyyy') > '2023-01-01' 
-        and ds_serie = 'Boi | INDICADOR DO BOI GORDO CEPEA/B3                                                 '
-        and vl_preco <> '-' 
+        and ds_serie = 'Milho | INDICADOR DO MILHO ESALQ/BM&FBOVESPA                                                 '
+        and vl_preco_a_vista_br <> '-' 
     order by 
         cast(dt_preco as date format 'dd/mm/yyyy') desc
     """
@@ -80,7 +82,7 @@ def load_data():
     df['PREÇO (R$)'] = df['PREÇO (R$)'].replace('-','0',regex=True)
     df['PREÇO (R$)'] = df['PREÇO (R$)'].replace(',','.',regex=True)
     df['PREÇO (R$)'] = df['PREÇO (R$)'].astype(float)
-    df['SÉRIE'] = df['SÉRIE'].replace('Boi | ','',regex=True)
+    df['SÉRIE'] = df['SÉRIE'].replace('Milho | ','',regex=True)
     df['DATA COTAÇÃO'] = pd.to_datetime(df['DATA COTAÇÃO'],format='%d/%m/%Y',errors='coerce').dt.date
     return df
 
@@ -94,10 +96,9 @@ st.write(filtro_df)
 # Ordena por data
 df_sorted = data.sort_values(by='DATA COTAÇÃO', ascending=False)
 
-
 #Fonte
-st.write(":green[FONTE: INDICADOR DO BOI GORDO CEPEA/B3]")
-st.write(":green[NOTA: Por arroba, descontado o Prazo de Pagamento pela taxa CDI/CETIP]")
+st.write(":green[FONTE: INDICADOR DO MILHO ESALQ/BM&FBOVESPA]")
+st.write(":green[NOTA: À vista por saca de 60 kg, descontado o Prazo de Pagamento pela taxa CDI/CETIP.]")
 
 
 # Pega data mais recente
