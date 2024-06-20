@@ -119,7 +119,7 @@ pct = "{:.4%}".format(pct_var)
 ind_pct_periodo= "{:.4%}".format(pct_periodo)
 vl_max_serie = filtro_df['PREÇO (R$)'].max()
 vl_min_serie = filtro_df['PREÇO (R$)'].min()
-
+vl_medio_serie = round(filtro_df['PREÇO (R$)'].mean(),2)
 
 # Indicadores
 col1, col2,col3 = st.columns(3)
@@ -128,10 +128,11 @@ col2.metric(label=":chart: Valor Atual (R$) / Var. dia anterior (%)", value=vl_a
 #col3.metric(label=":currency_exchange: Valor Anterior (R$)", value=vl_anterior)
 col3.metric(label=":chart: Valor Início Período (R$) / Var. Período (%)", value=vl_inicio_serie,delta=ind_pct_periodo)
 
-# Valores Max e Min
-max_serie, min_serie = st.columns(2)
-max_serie.metric(label=":arrow_up_small: Valor Máximo no Período", value=(vl_max_serie))
-min_serie.metric(label=":arrow_down_small: Valor Mínimo no Período", value=(vl_min_serie))
+# Valores Max e Min e Medio
+max_serie, min_serie,medio_serie = st.columns(3)
+max_serie.metric(label=":arrow_up_small: Valor Máximo no Período (R$)", value=(vl_max_serie))
+min_serie.metric(label=":arrow_down_small: Valor Mínimo no Período (R$)", value=(vl_min_serie))
+medio_serie.metric(label=":small_orange_diamond: Valor Médio no Período (R$)", value=(vl_medio_serie))
 
 #Campos Gráfico
 x_field = 'PREÇO (R$)'
