@@ -5,6 +5,7 @@ from google.cloud import bigquery
 import pandas_gbq
 import datetime
 
+
 #Configuração Página
 st.set_page_config(
     page_title="RURAX >> COTAÇÕES",layout="wide"
@@ -19,11 +20,10 @@ client = bigquery.Client(credentials=credentials)
 project_id = 'cities-rurax'
 
 # Título da aplicação
-st.title(":green[>> MILHO]")
+st.title(":green[>> FRANGO]")
 
 #Imagem Topo
-st.image('https://i.imgur.com/02wX7AE.png')
-
+st.image('https://i.imgur.com/h7jY1RH.jpg')
 
 with st.sidebar:
 
@@ -44,9 +44,10 @@ with st.sidebar:
     #Data final do período
     data_final = st.date_input("DATA FINAL",value="default_value_today",min_value=datetime.date(2024,1,1),format="DD/MM/YYYY")
 
-  #LINHA 1
+
+    #LINHA 1
     boi, soja = st.columns(2)
-    boi.page_link("streamlit_app.py", label="BOI GORDO")
+    boi.page_link("streamlit_app.py", label="BOI GORDO", disabled=True)
     boi.image('https://i.imgur.com/edshqj2.png',width=60)
 
     soja.page_link("pages/soja.py", label="SOJA")
@@ -57,7 +58,7 @@ with st.sidebar:
     bezerro.page_link("pages/bezerro.py", label="BEZERRO")
     bezerro.image("https://i.imgur.com/Na2tAXo.jpg",width=60)
 
-    milho.page_link("pages/milho.py", label="MILHO", disabled=True)
+    milho.page_link("pages/milho.py", label="MILHO")
     milho.image("https://i.imgur.com/jj9iNZo.jpg",width=60)
 
     #LINHA 3
@@ -70,7 +71,7 @@ with st.sidebar:
 
     #LINHA 4
     frango, trigo= st.columns(2) 
-    frango.page_link("pages/frango.py", label="FRANGO")
+    frango.page_link("pages/frango.py", label="FRANGO", disabled=True)
     frango.image("https://i.imgur.com/9GYGVpy.jpg",width=60)
 
     trigo.page_link("pages/trigo.py", label="TRIGO")
@@ -84,20 +85,19 @@ with st.sidebar:
     acucar.page_link("pages/acucar.py", label="AÇUCAR")
     acucar.image("https://i.imgur.com/h4pB7Zl.jpg",width=60)
 
-
 @st.cache_data
 def load_data():
     query = """
     select 
         cast(dt_preco as date format 'dd/mm/yyyy') data_preco, 
         ds_produto, 
-        vl_preco_a_vista_br as vl_preco, 
-        'INDICADOR DO MILHO ESALQ/BM&FBOVESPA' as ds_serie 
-        from `insight_esalq.tb_precos_milho` 
+        vl_preco, 
+        'PREÇOS DO FRANGO CONGELADO CEPEA/ESALQ - ESTADO SP' as ds_serie 
+        from `insight_esalq.tb_precos_frango` 
     where 
         cast(dt_preco as date format 'dd/mm/yyyy') > '2023-01-01' 
-        and ds_serie = 'Milho | INDICADOR DO MILHO ESALQ/BM&FBOVESPA                                                 '
-        and vl_preco_a_vista_br <> '-' 
+        and ds_serie = 'Frango | PREÇOS DO FRANGO CONGELADO CEPEA/ESALQ - ESTADO SP                                                 '
+        and vl_preco <> '-' 
     order by 
         cast(dt_preco as date format 'dd/mm/yyyy') desc
     """
@@ -123,9 +123,10 @@ st.write(filtro_df)
 # Ordena por data
 df_sorted = data.sort_values(by='DATA COTAÇÃO', ascending=False)
 
+
 #Fonte
-st.write(":green[FONTE: INDICADOR DO MILHO ESALQ/BM&FBOVESPA]")
-st.write(":green[NOTA: À vista por saca de 60 kg, descontado o Prazo de Pagamento pela taxa CDI/CETIP.]")
+st.write(":green[FONTE: PREÇOS DO FRANGO CONGELADO CEPEA/ESALQ - ESTADO SP]")
+st.write(":green[NOTA: Atacado, média (R$/kg) das regiões: Grande São Paulo, São José do Rio Preto e Descalvado]")
 
 
 # Pega data mais recente
@@ -148,7 +149,6 @@ ind_pct_periodo= "{:.4%}".format(pct_periodo)
 vl_max_serie = filtro_df['PREÇO (R$)'].max()
 vl_min_serie = filtro_df['PREÇO (R$)'].min()
 vl_medio_serie = round(filtro_df['PREÇO (R$)'].mean(),2)
-
 
 # Indicadores
 col1, col2,col3 = st.columns(3)

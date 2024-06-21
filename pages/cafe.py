@@ -5,6 +5,7 @@ from google.cloud import bigquery
 import pandas_gbq
 import datetime
 
+
 #Configuração Página
 st.set_page_config(
     page_title="RURAX >> COTAÇÕES",layout="wide"
@@ -19,11 +20,10 @@ client = bigquery.Client(credentials=credentials)
 project_id = 'cities-rurax'
 
 # Título da aplicação
-st.title(":green[>> MILHO]")
+st.title(":green[>> CAFÉ]")
 
 #Imagem Topo
-st.image('https://i.imgur.com/02wX7AE.png')
-
+st.image('https://i.imgur.com/dcmECxH.jpg')
 
 with st.sidebar:
 
@@ -44,7 +44,8 @@ with st.sidebar:
     #Data final do período
     data_final = st.date_input("DATA FINAL",value="default_value_today",min_value=datetime.date(2024,1,1),format="DD/MM/YYYY")
 
-  #LINHA 1
+
+    #LINHA 1
     boi, soja = st.columns(2)
     boi.page_link("streamlit_app.py", label="BOI GORDO")
     boi.image('https://i.imgur.com/edshqj2.png',width=60)
@@ -57,7 +58,7 @@ with st.sidebar:
     bezerro.page_link("pages/bezerro.py", label="BEZERRO")
     bezerro.image("https://i.imgur.com/Na2tAXo.jpg",width=60)
 
-    milho.page_link("pages/milho.py", label="MILHO", disabled=True)
+    milho.page_link("pages/milho.py", label="MILHO")
     milho.image("https://i.imgur.com/jj9iNZo.jpg",width=60)
 
     #LINHA 3
@@ -65,7 +66,7 @@ with st.sidebar:
     arroz.page_link("pages/arroz.py", label="ARROZ")
     arroz.image("https://i.imgur.com/5WiVtve.jpg",width=60)
 
-    cafe.page_link("pages/cafe.py", label="CAFÉ")
+    cafe.page_link("pages/cafe.py", label="CAFÉ", disabled=True)
     cafe.image("https://i.imgur.com/8kzzJkb.jpg",width=60)
 
     #LINHA 4
@@ -84,7 +85,6 @@ with st.sidebar:
     acucar.page_link("pages/acucar.py", label="AÇUCAR")
     acucar.image("https://i.imgur.com/h4pB7Zl.jpg",width=60)
 
-
 @st.cache_data
 def load_data():
     query = """
@@ -92,11 +92,11 @@ def load_data():
         cast(dt_preco as date format 'dd/mm/yyyy') data_preco, 
         ds_produto, 
         vl_preco_a_vista_br as vl_preco, 
-        'INDICADOR DO MILHO ESALQ/BM&FBOVESPA' as ds_serie 
-        from `insight_esalq.tb_precos_milho` 
+        'INDICADOR DO CAFÉ ARÁBICA CEPEA/ESALQ' as ds_serie 
+        from `insight_esalq.tb_precos_cafe` 
     where 
         cast(dt_preco as date format 'dd/mm/yyyy') > '2023-01-01' 
-        and ds_serie = 'Milho | INDICADOR DO MILHO ESALQ/BM&FBOVESPA                                                 '
+        and ds_serie = 'Café | INDICADOR DO CAFÉ ARÁBICA CEPEA/ESALQ                                                 '
         and vl_preco_a_vista_br <> '-' 
     order by 
         cast(dt_preco as date format 'dd/mm/yyyy') desc
@@ -107,9 +107,7 @@ def load_data():
         'data_preco':'DATA COTAÇÃO',
         #'ds_nota':'NOTA',
         'ds_serie':'SÉRIE'})
-    df['PREÇO (R$)'] = df['PREÇO (R$)'].replace('-','0',regex=True)
-    df['PREÇO (R$)'] = df['PREÇO (R$)'].replace(',','.',regex=True)
-    df['PREÇO (R$)'] = df['PREÇO (R$)'].astype(float)
+    df['PREÇO (R$)'] = df['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float)
     df['DATA COTAÇÃO'] = pd.to_datetime(df['DATA COTAÇÃO'],format='%d/%m/%Y',errors='coerce').dt.date
     return df
 
@@ -123,9 +121,10 @@ st.write(filtro_df)
 # Ordena por data
 df_sorted = data.sort_values(by='DATA COTAÇÃO', ascending=False)
 
+
 #Fonte
-st.write(":green[FONTE: INDICADOR DO MILHO ESALQ/BM&FBOVESPA]")
-st.write(":green[NOTA: À vista por saca de 60 kg, descontado o Prazo de Pagamento pela taxa CDI/CETIP.]")
+st.write(":green[FONTE: INDICADOR DO CAFÉ ARÁBICA CEPEA/ESALQ]")
+st.write(":green[NOTA: por saca de 60kg líqüido, bica corrida, tipo 6, bebida dura para melhor, valor descontado o Prazo de Pagamento pela taxa da NPR, posto na cidade de São Paulo]")
 
 
 # Pega data mais recente
@@ -148,7 +147,6 @@ ind_pct_periodo= "{:.4%}".format(pct_periodo)
 vl_max_serie = filtro_df['PREÇO (R$)'].max()
 vl_min_serie = filtro_df['PREÇO (R$)'].min()
 vl_medio_serie = round(filtro_df['PREÇO (R$)'].mean(),2)
-
 
 # Indicadores
 col1, col2,col3 = st.columns(3)

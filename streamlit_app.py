@@ -7,7 +7,7 @@ import datetime
 
 #Configuração Página
 st.set_page_config(
-    page_title="RURAX >> COTAÇÕES"
+    page_title="RURAX >> COTAÇÕES",layout="wide"
 )
 
 # Create API client.
@@ -22,7 +22,7 @@ project_id = 'cities-rurax'
 st.title(":green[>> BOI GORDO (BGI)]")
 
 #Imagem Topo
-st.image('https://i.imgur.com/4EPJ2wx.jpg',use_column_width='always')
+st.image('https://i.imgur.com/JDGgGNB.png')
 
 with st.sidebar:
 
@@ -43,17 +43,47 @@ with st.sidebar:
     #Data final do período
     data_final = st.date_input("DATA FINAL",value="default_value_today",min_value=datetime.date(2024,1,1),format="DD/MM/YYYY")
 
-    #st.write(":green[>> BOI GORDO]")
-    st.page_link("streamlit_app.py", label=">> BOI GORDO", disabled=True)
-    st.image("https://i.imgur.com/edshqj2.png",width=75)
 
-    #st.write(":green[>> SOJA]")
-    st.page_link("pages/soja.py", label=">> SOJA")
-    st.image("https://i.imgur.com/ck4EKWb.png",width=75)
+    #LINHA 1
+    boi, soja = st.columns(2)
+    boi.page_link("streamlit_app.py", label="BOI GORDO", disabled=True)
+    boi.image('https://i.imgur.com/edshqj2.png',width=60)
 
-    #st.write(":green[>> MILHO]")
-    st.page_link("pages/milho.py", label=">> MILHO")
-    st.image("https://i.imgur.com/QPNz06I.png",width=75)
+    soja.page_link("pages/soja.py", label="SOJA")
+    soja.image("https://i.imgur.com/ck4EKWb.png",width=60)
+    
+    #LINHA 2
+    bezerro,milho = st.columns(2) 
+    bezerro.page_link("pages/bezerro.py", label="BEZERRO")
+    bezerro.image("https://i.imgur.com/Na2tAXo.jpg",width=60)
+
+    milho.page_link("pages/milho.py", label="MILHO")
+    milho.image("https://i.imgur.com/jj9iNZo.jpg",width=60)
+
+    #LINHA 3
+    arroz,cafe = st.columns(2) 
+    arroz.page_link("pages/arroz.py", label="ARROZ")
+    arroz.image("https://i.imgur.com/5WiVtve.jpg",width=60)
+
+    cafe.page_link("pages/cafe.py", label="CAFÉ")
+    cafe.image("https://i.imgur.com/8kzzJkb.jpg",width=60)
+
+    #LINHA 4
+    frango, trigo= st.columns(2) 
+    frango.page_link("pages/frango.py", label="FRANGO")
+    frango.image("https://i.imgur.com/9GYGVpy.jpg",width=60)
+
+    trigo.page_link("pages/trigo.py", label="TRIGO")
+    trigo.image("https://i.imgur.com/KulujJW.jpg",width=60)
+
+    #LINHA 5
+    suino, acucar= st.columns(2) 
+    suino.page_link("pages/suino.py", label="SUÍNO")
+    suino.image("https://i.imgur.com/p7yyzvM.jpg",width=60)
+
+    acucar.page_link("pages/acucar.py", label="AÇUCAR")
+    acucar.image("https://i.imgur.com/h4pB7Zl.jpg",width=60)
+
 
 @st.cache_data
 def load_data():
@@ -80,7 +110,7 @@ def load_data():
     df['PREÇO (R$)'] = df['PREÇO (R$)'].replace('-','0',regex=True)
     df['PREÇO (R$)'] = df['PREÇO (R$)'].replace(',','.',regex=True)
     df['PREÇO (R$)'] = df['PREÇO (R$)'].astype(float)
-    df['SÉRIE'] = df['SÉRIE'].replace('Boi | ','',regex=True)
+    #df['SÉRIE'] = df['SÉRIE'].replace('Boi | ','',regex=True)
     df['DATA COTAÇÃO'] = pd.to_datetime(df['DATA COTAÇÃO'],format='%d/%m/%Y',errors='coerce').dt.date
     return df
 
