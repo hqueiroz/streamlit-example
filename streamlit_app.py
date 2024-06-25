@@ -97,7 +97,6 @@ def format_price(price):
     return f"{price:,.2f}".replace(',', 'v').replace('.', ',').replace('v', '.')
 
 
-
 @st.cache_data
 def load_data():
     query = """
@@ -193,7 +192,7 @@ st.write(" ")
 st.write(":green[>> SÉRIE - PERÍODO SELECIONADO]")
 st.write(" ")
 grafico = load_data()
-grafico['PREÇO (R$)'] = 'R$ '+grafico['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float).apply(format_price)
+grafico['PREÇO (R$)'] = grafico['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float)
 grafico = grafico[(grafico['DATA COTAÇÃO'] >= data_inicial) & (grafico['DATA COTAÇÃO'] <= data_final)]
 grafico = grafico.sort_values(by='DATA COTAÇÃO', ascending=False)
 #grafico.set_index('DATA COTAÇÃO',inplace=True)

@@ -174,7 +174,7 @@ medio_serie.metric(label=":small_orange_diamond: Valor Médio no Período (R$)",
 #Formata tabela
 st.write(":green[>> COTAÇÕES]")
 tabela = data 
-tabela['PREÇO (R$)'] = 'R$ '+tabela['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float).apply(format_price)
+tabela['PREÇO (R$)'] = tabela['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float)
 tabela = tabela[(tabela['DATA COTAÇÃO'] >= data_inicial) & (tabela['DATA COTAÇÃO'] <= data_final)]
 tabela['DATA COTAÇÃO'] = pd.to_datetime(tabela['DATA COTAÇÃO'],format='%d/%m/%Y',errors='coerce')
 tabela['DATA COTAÇÃO'] = tabela['DATA COTAÇÃO'].dt.strftime('%d/%m/%Y')
