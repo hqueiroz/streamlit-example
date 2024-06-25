@@ -171,6 +171,15 @@ max_serie.metric(label=":arrow_up_small: Valor Máximo no Período (R$)", value=
 min_serie.metric(label=":arrow_down_small: Valor Mínimo no Período (R$)", value=vl_min)
 medio_serie.metric(label=":small_orange_diamond: Valor Médio no Período (R$)", value=vl_medio)
 
+#Formata tabela
+st.write(":green[>> COTAÇÕES]")
+tabela = data 
+tabela['PREÇO (R$)'] = 'R$ '+tabela['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float).apply(format_price)
+tabela = tabela[(tabela['DATA COTAÇÃO'] >= data_inicial) & (tabela['DATA COTAÇÃO'] <= data_final)]
+tabela['DATA COTAÇÃO'] = pd.to_datetime(tabela['DATA COTAÇÃO'],format='%d/%m/%Y',errors='coerce')
+tabela['DATA COTAÇÃO'] = tabela['DATA COTAÇÃO'].dt.strftime('%d/%m/%Y')
+st.write(tabela)
+
 #Fonte
 st.write(":green[FONTE: INDICADOR DA SOJA CEPEA/ESALQ - PARANÁ]")
 st.write(":green[NOTA: Por saca de 60 kg, descontado o Prazo de Pagamento pela taxa NPR]")
