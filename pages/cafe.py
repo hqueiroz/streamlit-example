@@ -19,11 +19,19 @@ client = bigquery.Client(credentials=credentials)
 
 project_id = 'cities-rurax'
 
+# Ajusta largura página
+css='''
+<style>
+    section.main > div {max-width:55rem}
+</style>
+'''
+st.markdown(css, unsafe_allow_html=True)
+
 # Título da aplicação
 st.title(":green[>> CAFÉ]")
 
 #Imagem Topo
-st.image('https://i.imgur.com/dcmECxH.jpg')
+st.image('https://i.imgur.com/dcmECxH.jpg', use_column_width='always')
 
 with st.sidebar:
 
@@ -85,6 +93,10 @@ with st.sidebar:
     acucar.page_link("pages/acucar.py", label="AÇUCAR")
     acucar.image("https://i.imgur.com/h4pB7Zl.jpg",width=60)
 
+# Função para formatar o preço
+def format_price(price):
+    return f"{price:,.2f}".replace(',', 'v').replace('.', ',').replace('v', '.')
+
 @st.cache_data
 def load_data():
     query = """
@@ -105,64 +117,86 @@ def load_data():
         'vl_preco':'PREÇO (R$)',
         'ds_produto':'PRODUTO',
         'data_preco':'DATA COTAÇÃO',
-        #'ds_nota':'NOTA',
         'ds_serie':'SÉRIE'})
-    df['PREÇO (R$)'] = df['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float)
-    df['DATA COTAÇÃO'] = pd.to_datetime(df['DATA COTAÇÃO'],format='%d/%m/%Y',errors='coerce').dt.date
+    #df['PREÇO (R$)'] = 'R$ '+df['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float).apply(format_price)
+    #df['DATA COTAÇÃO'] = pd.to_datetime(df['DATA COTAÇÃO'],format='%d/%m/%Y',errors='coerce').dt.date
+    #df['DATA COTAÇÃO'] = df['DATA COTAÇÃO'].dt.strftime('%d/%m/%Y')
+    df = df.sort_values(by='DATA COTAÇÃO', ascending=False)
     return df
 
 # Carregar os dados
 data = load_data()
 
-# Filtra Datas
-filtro_df = data[(data['DATA COTAÇÃO'] >= data_inicial) & (data['DATA COTAÇÃO'] <= data_final)]
-st.write(filtro_df)
+#Formata Indicadores
+indicadores = load_data()
+indicadores['PREÇO (R$)'] = indicadores['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float)
+indicadores = indicadores[(indicadores['DATA COTAÇÃO'] >= data_inicial) & (indicadores['DATA COTAÇÃO'] <= data_final)]
+indicadores = indicadores.sort_values(by='DATA COTAÇÃO', ascending=False)
+#indicadores['DATA COTAÇÃO'] = indicadores['DATA COTAÇÃO'].dt.strftime('%d/%m/%Y')
 
-# Ordena por data
-df_sorted = data.sort_values(by='DATA COTAÇÃO', ascending=False)
+#Pega data mais recente
+data_mais_recente = indicadores.iloc[0]
+dia_anterior = indicadores.iloc[1]
+inicio_serie = indicadores.loc[indicadores['DATA COTAÇÃO'].idxmin()]
 
+# Pega valor e data atual
+#data['PREÇO (R$)']=data['PREÇO (R$)'].str.replace('R$ ', '', regex=False).str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float)
+vl_atual = data_mais_recente['PREÇO (R$)']
+vl_anterior = dia_anterior['PREÇO (R$)']
+dt_atual = data_mais_recente['DATA COTAÇÃO']
+vl_inicio_serie = inicio_serie['PREÇO (R$)']
+
+# Pega cotação dia anterior e cálculo variação
+pct_var = (vl_atual / vl_anterior)-1
+pct_periodo = (vl_atual / vl_inicio_serie)-1
+pct = "{:.2%}".format(pct_var)
+ind_pct_periodo= "{:.2%}".format(pct_periodo)
+vl_max_serie = indicadores['PREÇO (R$)'].max()
+vl_min_serie = indicadores['PREÇO (R$)'].min()
+vl_medio_serie = round(indicadores['PREÇO (R$)'].mean(),2)
+
+# Indicadores
+col1, col2,col3 = st.columns(3)
+dt_metrica = pd.to_datetime(dt_atual).strftime('%d/%m/%Y')
+vl_metrica = 'R$ ' + format_price(vl_atual)
+vl_inicio = 'R$ ' + format_price(vl_inicio_serie)
+col1.metric(label=":calendar: Data Cotação Atual", value=str(dt_metrica))
+col2.metric(label=":chart: Valor Atual (R$) / Var. dia anterior (%)", value=vl_metrica, delta=pct)
+col3.metric(label=":chart: Valor Início Período (R$) / Var. Período (%)", value=vl_inicio,delta=ind_pct_periodo)
+
+# Valores Max e Min e Medio
+max_serie, min_serie,medio_serie = st.columns(3)
+vl_max = 'R$ '+ format_price(vl_max_serie)
+vl_min = 'R$ ' + format_price(vl_min_serie)
+vl_medio = 'R$ ' + format_price(vl_medio_serie)
+max_serie.metric(label=":arrow_up_small: Valor Máximo no Período (R$)", value=vl_max)
+min_serie.metric(label=":arrow_down_small: Valor Mínimo no Período (R$)", value=vl_min)
+medio_serie.metric(label=":small_orange_diamond: Valor Médio no Período (R$)", value=vl_medio)
+
+#Formata tabela
+st.write(":green[>> COTAÇÕES]")
+tabela = data 
+tabela['PREÇO (R$)'] = 'R$ '+tabela['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float).apply(format_price)
+tabela = tabela[(tabela['DATA COTAÇÃO'] >= data_inicial) & (tabela['DATA COTAÇÃO'] <= data_final)]
+tabela['DATA COTAÇÃO'] = pd.to_datetime(tabela['DATA COTAÇÃO'],format='%d/%m/%Y',errors='coerce')
+tabela['DATA COTAÇÃO'] = tabela['DATA COTAÇÃO'].dt.strftime('%d/%m/%Y')
+st.write(tabela)
 
 #Fonte
 st.write(":green[FONTE: INDICADOR DO CAFÉ ARÁBICA CEPEA/ESALQ]")
 st.write(":green[NOTA: por saca de 60kg líqüido, bica corrida, tipo 6, bebida dura para melhor, valor descontado o Prazo de Pagamento pela taxa da NPR, posto na cidade de São Paulo]")
 
 
-# Pega data mais recente
-data_mais_recente = df_sorted.iloc[0]
-dia_anterior = df_sorted.iloc[1]
-inicio_serie = filtro_df.loc[filtro_df['DATA COTAÇÃO'].idxmin()]
-
-
-# Pega valor e data atual
-vl_atual = data_mais_recente['PREÇO (R$)']
-dt_atual = data_mais_recente['DATA COTAÇÃO']
-vl_inicio_serie = inicio_serie['PREÇO (R$)']
-
-# Pega cotação dia anterior e cálculo variação
-vl_anterior = dia_anterior['PREÇO (R$)']
-pct_var = (vl_atual / vl_anterior)-1
-pct_periodo = (vl_atual / vl_inicio_serie)-1
-pct = "{:.4%}".format(pct_var)
-ind_pct_periodo= "{:.4%}".format(pct_periodo)
-vl_max_serie = filtro_df['PREÇO (R$)'].max()
-vl_min_serie = filtro_df['PREÇO (R$)'].min()
-vl_medio_serie = round(filtro_df['PREÇO (R$)'].mean(),2)
-
-# Indicadores
-col1, col2,col3 = st.columns(3)
-col1.metric(label=":calendar: Data Cotação Atual", value=str(dt_atual))
-col2.metric(label=":chart: Valor Atual (R$) / Var. dia anterior (%)", value=vl_atual, delta=pct)
-#col3.metric(label=":currency_exchange: Valor Anterior (R$)", value=vl_anterior)
-col3.metric(label=":chart: Valor Início Período (R$) / Var. Período (%)", value=vl_inicio_serie,delta=ind_pct_periodo)
-
-# Valores Max e Min e Medio
-max_serie, min_serie,medio_serie = st.columns(3)
-max_serie.metric(label=":arrow_up_small: Valor Máximo no Período (R$)", value=(vl_max_serie))
-min_serie.metric(label=":arrow_down_small: Valor Mínimo no Período (R$)", value=(vl_min_serie))
-medio_serie.metric(label=":small_orange_diamond: Valor Médio no Período (R$)", value=(vl_medio_serie))
-
 #Campos Gráfico
+st.write(" ")
+st.write(" ")
+st.write(":green[>> SÉRIE - PERÍODO SELECIONADO]")
+st.write(" ")
+grafico = load_data()
+grafico['PREÇO (R$)'] = 'R$ '+grafico['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float).apply(format_price)
+grafico = grafico[(grafico['DATA COTAÇÃO'] >= data_inicial) & (grafico['DATA COTAÇÃO'] <= data_final)]
+grafico = grafico.sort_values(by='DATA COTAÇÃO', ascending=False)
+#grafico.set_index('DATA COTAÇÃO',inplace=True)
 x_field = 'PREÇO (R$)'
 y_field = 'DATA COTAÇÃO'
-st.line_chart(filtro_df[[x_field, y_field]].set_index(y_field),color='#50C878')
-#st.area_chart(data,y=x_field,x=y_field,color='#50C878')
+st.line_chart(grafico[[x_field, y_field]].set_index(y_field),color='#50C878')
