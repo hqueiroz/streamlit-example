@@ -35,6 +35,18 @@ st.image('https://i.imgur.com/uioBCkQ.jpg', use_column_width='always')
 
 with st.sidebar:
 
+    #Ajusta largura da Sidebar
+    st.markdown(
+    """
+    <style>
+        section[data-testid="stSidebar"] {
+            width: 260px !important; # Set the width to your desired value
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+    )
+        
     #Logo
     st.image("https://i.imgur.com/O50xA7q.png",width=200)
 
