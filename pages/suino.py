@@ -102,7 +102,7 @@ with st.sidebar:
     suino.page_link("pages/suino.py", label="SUÍNO", disabled=True)
     suino.image("https://i.imgur.com/p7yyzvM.jpg",width=60)
 
-    acucar.page_link("pages/acucar.py", label="AÇUCAR")
+    acucar.page_link("pages/acucar.py", label="AÇÚCAR")
     acucar.image("https://i.imgur.com/h4pB7Zl.jpg",width=60)
 
 # Função para formatar o preço

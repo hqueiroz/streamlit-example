@@ -28,7 +28,7 @@ css='''
 st.markdown(css, unsafe_allow_html=True)
 
 # Título da aplicação
-st.title(":green[>> AÇUCAR]")
+st.title(":green[>> AÇÚCAR]")
 
 #Imagem Topo
 st.image('https://i.imgur.com/StaHq39.jpg', use_column_width='always')
@@ -102,7 +102,7 @@ with st.sidebar:
     suino.page_link("pages/suino.py", label="SUÍNO")
     suino.image("https://i.imgur.com/p7yyzvM.jpg",width=60)
 
-    acucar.page_link("pages/acucar.py", label="AÇUCAR", disabled=True)
+    acucar.page_link("pages/acucar.py", label="AÇÚCAR", disabled=True)
     acucar.image("https://i.imgur.com/h4pB7Zl.jpg",width=60)
 
 # Função para formatar o preço
@@ -116,7 +116,7 @@ def load_data():
         dt_preco as data_preco, 
         ds_produto, 
         vl_preco_a_vista_br as vl_preco, 
-        replace(trim(upper(ds_serie)),'AÇUCAR | ','') as ds_serie, 
+        replace(trim(upper(ds_serie)),'AÇÚCAR | ','') as ds_serie, 
         from `insight_esalq.tb_precos_acucar` 
     where 
         vl_preco_a_vista_br <> '-' 
