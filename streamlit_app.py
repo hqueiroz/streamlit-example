@@ -108,7 +108,6 @@ with st.sidebar:
 def format_price(price):
     return f"{price:,.2f}".replace(',', 'v').replace('.', ',').replace('v', '.')
 
-
 @st.cache_data
 def load_data():
     query = """
@@ -116,12 +115,11 @@ def load_data():
         cast(dt_preco as date format 'dd/mm/yyyy') data_preco, 
         ds_produto, 
         vl_preco, 
-        'INDICADOR DO BOI GORDO CEPEA/B3' as ds_serie 
+        replace(trim(upper(ds_serie)),'BOI | ','') as ds_serie, 
+        ds_nota,
         from `insight_esalq.tb_precos_boi` 
     where 
-        cast(dt_preco as date format 'dd/mm/yyyy') > '2023-01-01' 
-        and ds_serie = 'Boi | INDICADOR DO BOI GORDO CEPEA/B3                                                 '
-        and vl_preco <> '-' 
+        vl_preco <> '-' 
     order by 
         cast(dt_preco as date format 'dd/mm/yyyy') desc
     """
@@ -129,20 +127,28 @@ def load_data():
         'vl_preco':'PREÇO (R$)',
         'ds_produto':'PRODUTO',
         'data_preco':'DATA COTAÇÃO',
-        'ds_serie':'SÉRIE'})
-    #df['PREÇO (R$)'] = 'R$ '+df['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float).apply(format_price)
-    #df['DATA COTAÇÃO'] = pd.to_datetime(df['DATA COTAÇÃO'],format='%d/%m/%Y',errors='coerce').dt.date
-    #df['DATA COTAÇÃO'] = df['DATA COTAÇÃO'].dt.strftime('%d/%m/%Y')
+        'ds_serie':'SÉRIE',
+        'ds_nota':'NOTA'})
     df = df.sort_values(by='DATA COTAÇÃO', ascending=False)
     return df
 
 # Carregar os dados
 data = load_data()
 
+# Seleciona a série
+option = st.selectbox(
+    "Selecione a série desejada:",
+    (data['SÉRIE'].unique()))
+
+#st.write("Série Selecionada:", option)
+st.write(" ")
+st.write(" ")
+
 #Formata Indicadores
 indicadores = load_data()
 indicadores['PREÇO (R$)'] = indicadores['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float)
 indicadores = indicadores[(indicadores['DATA COTAÇÃO'] >= data_inicial) & (indicadores['DATA COTAÇÃO'] <= data_final)]
+indicadores = indicadores[(indicadores['SÉRIE'] == option)]
 indicadores = indicadores.sort_values(by='DATA COTAÇÃO', ascending=False)
 #indicadores['DATA COTAÇÃO'] = indicadores['DATA COTAÇÃO'].dt.strftime('%d/%m/%Y')
 
@@ -192,11 +198,14 @@ tabela['PREÇO (R$)'] = 'R$ '+tabela['PREÇO (R$)'].str.replace('.', '', regex=F
 tabela = tabela[(tabela['DATA COTAÇÃO'] >= data_inicial) & (tabela['DATA COTAÇÃO'] <= data_final)]
 tabela['DATA COTAÇÃO'] = pd.to_datetime(tabela['DATA COTAÇÃO'],format='%d/%m/%Y',errors='coerce')
 tabela['DATA COTAÇÃO'] = tabela['DATA COTAÇÃO'].dt.strftime('%d/%m/%Y')
+tabela = tabela[(tabela['SÉRIE'] == option)]
 st.write(tabela)
 
+notas = tabela['NOTA'].unique()
+nota = ', '.join(notas)
 #Fonte
-st.write(":green[FONTE: INDICADOR DO BOI GORDO CEPEA/B3]")
-st.write(":green[NOTA: Por arroba, descontado o Prazo de Pagamento pela taxa CDI/CETIP]")
+st.write("FONTE: ",option)
+st.write("NOTA: ",nota)
 
 #Campos Gráfico
 st.write(" ")
@@ -207,6 +216,7 @@ grafico = load_data()
 grafico['PREÇO (R$)'] = grafico['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float)
 grafico = grafico[(grafico['DATA COTAÇÃO'] >= data_inicial) & (grafico['DATA COTAÇÃO'] <= data_final)]
 grafico = grafico.sort_values(by='DATA COTAÇÃO', ascending=False)
+grafico = grafico[(grafico['SÉRIE'] == option)]
 #grafico.set_index('DATA COTAÇÃO',inplace=True)
 x_field = 'PREÇO (R$)'
 y_field = 'DATA COTAÇÃO'
