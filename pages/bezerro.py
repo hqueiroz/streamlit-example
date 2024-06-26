@@ -8,7 +8,7 @@ import datetime
 
 #Configuração Página
 st.set_page_config(
-    page_title="RURAX >> COTAÇÕES"
+    page_title="RURAX >> COTAÇÕES",layout="wide",initial_sidebar_state="expanded"
 )
 
 # Create API client.

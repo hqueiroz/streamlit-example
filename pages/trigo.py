@@ -8,7 +8,7 @@ import datetime
 
 #Configuração Página
 st.set_page_config(
-    page_title="RURAX >> COTAÇÕES",layout="wide"
+    page_title="RURAX >> COTAÇÕES",layout="wide",initial_sidebar_state="expanded"
 )
 
 # Create API client.
@@ -198,8 +198,8 @@ st.write(" ")
 grafico = load_data()
 grafico['PREÇO (R$)'] = grafico['PREÇO (R$)'].str.replace('.', '', regex=False).str.replace(',', '.', regex=False).astype(float)
 grafico = grafico[(grafico['DATA COTAÇÃO'] >= data_inicial) & (grafico['DATA COTAÇÃO'] <= data_final)]
-sorted_grafico = grafico.sort_values(by='DATA COTAÇÃO', ascending=False)
+grafico = grafico.sort_values(by='DATA COTAÇÃO', ascending=False)
 #grafico.set_index('DATA COTAÇÃO',inplace=True)
 x_field = 'PREÇO (R$)'
 y_field = 'DATA COTAÇÃO'
-st.line_chart(sorted_grafico[[x_field, y_field]].set_index(y_field),color='#50C878')
+st.line_chart(grafico[[x_field, y_field]].set_index(y_field),color='#50C878')
