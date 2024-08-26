@@ -4,6 +4,11 @@ from google.oauth2 import service_account
 from google.cloud import bigquery
 import pandas_gbq
 import datetime
+from streamlit_autorefresh import streamlit_autorefresh
+
+
+# Atualizacao Diaria
+streamlit_autorefresh(interval=86400000 , key="dataframerefresh")
 
 #Configuração Página
 st.set_page_config(
