@@ -9,8 +9,8 @@ from streamlit_autorefresh import st_autorefresh
 #Configuração Página
 st.set_page_config(
     page_title="RURAX >> COTAÇÕES",page_icon="🧊",layout="wide",initial_sidebar_state="expanded",menu_items={
-        'Ajuda': 'https://www.rurax.com',
-        'Sobre': "Plataforma de Cotações da RURAX"
+        'Get help': 'https://www.rurax.com',
+        'About': "Plataforma de Cotações da RURAX"
     }
 )
 
