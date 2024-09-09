@@ -12,7 +12,10 @@ st_autorefresh(interval=86400000 , limit=100, key="dataframerefresh")
 
 #Configuração Página
 st.set_page_config(
-    page_title="RURAX >> COTAÇÕES",layout="wide",initial_sidebar_state="expanded"
+    page_title="RURAX >> COTAÇÕES",page_icon="🧊",layout="wide",initial_sidebar_state="expanded",menu_items={
+        'Ajuda': 'https://www.rurax.com',
+        'Sobre': "Plataforma de Cotações da RURAX"
+    }
 )
 
 # Create API client.
