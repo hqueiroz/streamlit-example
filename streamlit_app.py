@@ -8,7 +8,7 @@ from streamlit_autorefresh import st_autorefresh
 
 
 # Atualizacao Diaria
-st_autorefresh(interval=86400000 , key="dataframerefresh")
+st_autorefresh(interval=86400000 , limit=100, key="dataframerefresh")
 
 #Configuração Página
 st.set_page_config(
