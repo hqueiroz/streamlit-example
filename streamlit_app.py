@@ -6,10 +6,6 @@ import pandas_gbq
 import datetime
 from streamlit_autorefresh import st_autorefresh
 
-
-# Atualizacao Diaria
-st_autorefresh(interval=86400000 , limit=100, key="dataframerefresh")
-
 #Configuração Página
 st.set_page_config(
     page_title="RURAX >> COTAÇÕES",page_icon="🧊",layout="wide",initial_sidebar_state="expanded",menu_items={
@@ -17,6 +13,9 @@ st.set_page_config(
         'Sobre': "Plataforma de Cotações da RURAX"
     }
 )
+
+# Atualizacao Diaria
+st_autorefresh(interval=86400000 , limit=100, key="dataframerefresh")
 
 # Create API client.
 credentials = service_account.Credentials.from_service_account_info(
