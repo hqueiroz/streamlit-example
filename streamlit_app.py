@@ -115,7 +115,7 @@ with st.sidebar:
 def format_price(price):
     return f"{price:,.2f}".replace(',', 'v').replace('.', ',').replace('v', '.')
 
-@st.cache_data
+@st.cache_data(ttl="10s")
 def load_data():
     query = """
     select 
